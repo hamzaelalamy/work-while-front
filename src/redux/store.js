@@ -1,22 +1,23 @@
 // src/redux/store.js
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import jobReducer from "./slices/jobSlice";
+import applicationReducer from "./slices/applicationSlice";
+import companyReducer from "./slices/companySlice";
+import notificationReducer from "./slices/notificationSlice";
+import scrapingReducer from "./slices/scrapingSlice";
+import analyticsReducer from "./slices/analyticsSlice";
 
 const store = configureStore({
     reducer: {
         auth: authReducer,
-        // Vous pouvez ajouter d'autres slices ici plus tard
-        // jobs: jobsReducer,
-        // applications: applicationsReducer,
-        // companies: companiesReducer,
+        jobs: jobReducer,
+        applications: applicationReducer,
+        companies: companyReducer,
+        notifications: notificationReducer,
+        scraping: scrapingReducer,
+        analytics: analyticsReducer,
     },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: ['persist/PERSIST']
-            }
-        }),
-    devTools: import.meta.env.NODE_ENV !== 'production'
 });
 
 export default store;

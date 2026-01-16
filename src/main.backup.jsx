@@ -1,3 +1,7 @@
+// src/main.jsx
+window.alert('MAIN.JSX IS RUNNING');
+document.body.style.backgroundColor = 'red';
+console.log('🚀 Main.jsx executing check...');
 import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./routes/routes.jsx";
@@ -44,10 +48,23 @@ class ErrorBoundary extends React.Component {
     }
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <AppRouter />
-        </ErrorBoundary>
-    </React.StrictMode>
-);
+console.log('🚀 Attempting to find root and render...');
+const root = document.getElementById("root");
+console.log('Root element:', root);
+
+if (!root) {
+    console.error('❌ FATAL: Root element not found!');
+} else {
+    try {
+        ReactDOM.createRoot(root).render(
+            <React.StrictMode>
+                <ErrorBoundary>
+                    <AppRouter />
+                </ErrorBoundary>
+            </React.StrictMode>
+        );
+        console.log('✅ Render called successfully');
+    } catch (err) {
+        console.error('❌ FATAL: Error during render:', err);
+    }
+}

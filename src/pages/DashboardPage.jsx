@@ -31,7 +31,7 @@ import userService from '../services/userService';
 const DashboardPage = ({ isAdmin = false }) => {
     const { user } = useSelector(state => state.auth);
     useNavigate();
-// États pour les données
+    // États pour les données
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [stats, setStats] = useState({});
@@ -631,13 +631,13 @@ const StatCard = ({ title, value, icon, color, change }) => {
 
 // Composant RecentApplications amélioré pour les employeurs
 const RecentApplications = ({
-                                applications,
-                                onStatusUpdate,
-                                onDownloadCV,
-                                getStatusColor,
-                                getStatusText,
-                                formatDate
-                            }) => {
+    applications,
+    onStatusUpdate,
+    onDownloadCV,
+    getStatusColor,
+    getStatusText,
+    formatDate
+}) => {
     const navigate = useNavigate();
 
     // Si c'est pour un candidat (pas de callbacks), utiliser l'ancien composant
@@ -960,14 +960,14 @@ const StatusBadge = ({ status }) => {
     return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
       ${config.color === 'green' ? 'bg-green-100 text-green-800' :
-            config.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                config.color === 'blue' ? 'bg-blue-100 text-blue-800' :
-                    config.color === 'red' ? 'bg-red-100 text-red-800' :
-                        config.color === 'purple' ? 'bg-purple-100 text-purple-800' :
-                            'bg-gray-100 text-gray-800'}`}
+                config.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                    config.color === 'blue' ? 'bg-blue-100 text-blue-800' :
+                        config.color === 'red' ? 'bg-red-100 text-red-800' :
+                            config.color === 'purple' ? 'bg-purple-100 text-purple-800' :
+                                'bg-gray-100 text-gray-800'}`}
         >
-      {config.text}
-    </span>
+            {config.text}
+        </span>
     );
 };
 
@@ -1044,7 +1044,13 @@ const QuickLinks = () => (
                 Manage Jobs
             </Link>
             <Link to="/admin/companies" className="block text-blue-600 hover:text-blue-800 text-sm">
-                Manage Companie
+                Manage Companies
+            </Link>
+            <Link to="/admin/scraping" className="block text-blue-600 hover:text-blue-800 text-sm">
+                Scraping Dashboard
+            </Link>
+            <Link to="/admin/analytics" className="block text-blue-600 hover:text-blue-800 text-sm">
+                Analytics Dashboard
             </Link>
         </div>
     </div>

@@ -37,7 +37,7 @@ const StatisticsSection = forwardRef(({ isVisible }, ref) => {
             </div>
 
             {/* Add keyframes for figure-8 animations */}
-            <style jsx>{`
+            <style>{`
                 @keyframes figure8-1 {
                     0%, 100% { transform: translate(0, 0); }
                     25% { transform: translate(20px, 15px); }

@@ -158,6 +158,25 @@ export default function Navbar() {
                           </>
                         )}
 
+                        {user?.role === 'admin' && (
+                          <>
+                            <Link
+                              to="/admin/scraping"
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileOpen(false)}
+                            >
+                              Scraping Dashboard
+                            </Link>
+                            <Link
+                              to="/admin/analytics"
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileOpen(false)}
+                            >
+                              Analytics
+                            </Link>
+                          </>
+                        )}
+
                         {user?.role === 'candidate' && (
                           <>
                             <Link

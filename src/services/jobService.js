@@ -106,60 +106,60 @@ const jobService = {
       if (jobData.skills) {
         if (Array.isArray(jobData.skills)) {
           transformedJobData.skills = jobData.skills
-              .map(skill => String(skill).trim())
-              .filter(skill => skill.length > 0)
-              .slice(0, 20); // Limit to 20 skills
+            .map(skill => String(skill).trim())
+            .filter(skill => skill.length > 0)
+            .slice(0, 20); // Limit to 20 skills
         } else if (typeof jobData.skills === 'string') {
           transformedJobData.skills = jobData.skills
-              .split(',')
-              .map(skill => String(skill).trim())
-              .filter(skill => skill.length > 0)
-              .slice(0, 20);
+            .split(',')
+            .map(skill => String(skill).trim())
+            .filter(skill => skill.length > 0)
+            .slice(0, 20);
         }
       }
 
       if (jobData.benefits) {
         if (Array.isArray(jobData.benefits)) {
           transformedJobData.benefits = jobData.benefits
-              .map(benefit => String(benefit).trim())
-              .filter(benefit => benefit.length > 0)
-              .slice(0, 10); // Limit to 10 benefits
+            .map(benefit => String(benefit).trim())
+            .filter(benefit => benefit.length > 0)
+            .slice(0, 10); // Limit to 10 benefits
         } else if (typeof jobData.benefits === 'string') {
           transformedJobData.benefits = jobData.benefits
-              .split('\n')
-              .map(benefit => String(benefit).trim())
-              .filter(benefit => benefit.length > 0)
-              .slice(0, 10);
+            .split('\n')
+            .map(benefit => String(benefit).trim())
+            .filter(benefit => benefit.length > 0)
+            .slice(0, 10);
         }
       }
 
       if (jobData.requirements) {
         if (Array.isArray(jobData.requirements)) {
           transformedJobData.requirements = jobData.requirements
-              .map(req => String(req).trim())
-              .filter(req => req.length > 0)
-              .slice(0, 15); // Limit to 15 requirements
+            .map(req => String(req).trim())
+            .filter(req => req.length > 0)
+            .slice(0, 15); // Limit to 15 requirements
         } else if (typeof jobData.requirements === 'string') {
           transformedJobData.requirements = jobData.requirements
-              .split('\n')
-              .map(req => String(req).trim())
-              .filter(req => req.length > 0)
-              .slice(0, 15);
+            .split('\n')
+            .map(req => String(req).trim())
+            .filter(req => req.length > 0)
+            .slice(0, 15);
         }
       }
 
       if (jobData.tags) {
         if (Array.isArray(jobData.tags)) {
           transformedJobData.tags = jobData.tags
-              .map(tag => String(tag).trim().toLowerCase())
-              .filter(tag => tag.length > 0)
-              .slice(0, 10); // Limit to 10 tags
+            .map(tag => String(tag).trim().toLowerCase())
+            .filter(tag => tag.length > 0)
+            .slice(0, 10); // Limit to 10 tags
         } else if (typeof jobData.tags === 'string') {
           transformedJobData.tags = jobData.tags
-              .split(',')
-              .map(tag => String(tag).trim().toLowerCase())
-              .filter(tag => tag.length > 0)
-              .slice(0, 10);
+            .split(',')
+            .map(tag => String(tag).trim().toLowerCase())
+            .filter(tag => tag.length > 0)
+            .slice(0, 10);
         }
       }
 
@@ -348,6 +348,21 @@ const jobService = {
   },
 
   /**
+   * Semantic Search
+   */
+  semanticSearch: async (query) => {
+    try {
+      console.log('Performing semantic search for query:', query);
+      const response = await apiClient.get(`${API_ENDPOINTS.JOBS.SEMANTIC_SEARCH}?query=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error during semantic search:', error);
+      const errorInfo = handleApiError(error);
+      throw new Error(errorInfo.message);
+    }
+  },
+
+  /**
    * Get user applications (wrapper for applicationService)
    */
   getUserApplications: async (page = 1, limit = 10, status = null) => {
@@ -485,8 +500,8 @@ const jobService = {
 
       // Filter out the current job and limit results
       const relatedJobs = (data.jobs || [])
-          .filter(job => job._id !== jobId)
-          .slice(0, limit);
+        .filter(job => job._id !== jobId)
+        .slice(0, limit);
 
       return relatedJobs;
     } catch (error) {

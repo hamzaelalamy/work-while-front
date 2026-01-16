@@ -68,98 +68,102 @@ export const API_ENDPOINTS = {
 
 // Request interceptor
 apiClient.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      // Always add ngrok header
-      config.headers['ngrok-skip-browser-warning'] = 'true';
-
-      // Log requests in development
-      if (import.meta.env.VITE_DEBUG_API === 'true') {
-        const baseURL = config.baseURL || '';
-        const url = config.url || '';
-        const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
-        console.log(`🚀 ${config.method?.toUpperCase()} ${fullURL}`, config.data || '');
-      }
-
-      return config;
-    },
-    (error) => {
-      console.error('❌ Request interceptor error:', error);
-      return Promise.reject(error);
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
+
+    // Always add ngrok header
+    config.headers['ngrok-skip-browser-warning'] = 'true';
+
+    // Log requests in development
+    if (import.meta.env.VITE_DEBUG_API === 'true') {
+      const baseURL = config.baseURL || '';
+      const url = config.url || '';
+      const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
+      console.log(`🚀 ${config.method?.toUpperCase()} ${fullURL}`, config.data || '');
+    }
+
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request interceptor error:', error);
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor
 apiClient.interceptors.response.use(
-    (response) => {
-      // Log successful responses in development
-      if (import.meta.env.VITE_DEBUG_API === 'true') {
-        const baseURL = response.config.baseURL || '';
-        const url = response.config.url || '';
-        const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
-        console.log(`✅ ${response.config.method?.toUpperCase()} ${fullURL}`, response.data);
-      }
-      return response;
-    },
-    async (error) => {
-      const originalRequest = error.config;
-
-      // Enhanced error logging
-      if (error.config && import.meta.env.VITE_DEBUG_API === 'true') {
-        const baseURL = error.config.baseURL || '';
-        const url = error.config.url || '';
-        const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
-
-        console.error(`❌ ${error.config?.method?.toUpperCase()} ${fullURL}`, {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          message: error.message,
-          corsHeaders: {
-            'Access-Control-Allow-Origin': error.response?.headers?.['access-control-allow-origin'],
-            'Access-Control-Allow-Credentials': error.response?.headers?.['access-control-allow-credentials']
-          }
-        });
-      }
-
-      // Handle network errors (common with ngrok)
-      if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
-        console.error('🌐 Network Error - Check ngrok connection');
-        return Promise.reject({
-          ...error,
-          message: 'Connection failed. Please check if the backend server is running.'
-        });
-      }
-
-      // Handle CORS errors specifically
-      if (error.message?.includes('CORS') || error.response?.status === 0) {
-        console.error('🚫 CORS Error detected');
-        return Promise.reject({
-          ...error,
-          message: 'CORS error. Please check server configuration.'
-        });
-      }
-
-      // Handle 401 Unauthorized errors
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        // Clear auth data
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-
-        // Redirect to login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
-      }
-
-      return Promise.reject(error);
+  (response) => {
+    // Log successful responses in development
+    if (import.meta.env.VITE_DEBUG_API === 'true') {
+      const baseURL = response.config.baseURL || '';
+      const url = response.config.url || '';
+      const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
+      console.log(`✅ ${response.config.method?.toUpperCase()} ${fullURL}`, response.data);
     }
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Enhanced error logging
+    if (error.config && import.meta.env.VITE_DEBUG_API === 'true') {
+      const baseURL = error.config.baseURL || '';
+      const url = error.config.url || '';
+      const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
+
+      console.error(`❌ ${error.config?.method?.toUpperCase()} ${fullURL}`, {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        corsHeaders: {
+          'Access-Control-Allow-Origin': error.response?.headers?.['access-control-allow-origin'],
+          'Access-Control-Allow-Credentials': error.response?.headers?.['access-control-allow-credentials']
+        }
+      });
+    }
+
+    // Handle network errors (common with ngrok)
+    if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+      console.error('🌐 Network Error - Check ngrok connection');
+      return Promise.reject({
+        ...error,
+        message: 'Connection failed. Please check if the backend server is running.'
+      });
+    }
+
+    // Handle CORS errors specifically
+    if (error.message?.includes('CORS') || error.response?.status === 0) {
+      console.error('🚫 CORS Error detected');
+      return Promise.reject({
+        ...error,
+        message: 'CORS error. Please check server configuration.'
+      });
+    }
+
+    // Handle 401 Unauthorized errors
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      // Clear auth data
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+      // Redirect to login page
+      // Redirect to login page ONLY if not already on login page and not a login request failure
+      const isLoginRequest = originalRequest.url && (originalRequest.url.includes('login') || originalRequest.url.includes('auth'));
+      const isLoginPage = window.location.pathname.includes('login');
+
+      if (!isLoginPage && !isLoginRequest) {
+        window.location.href = '/login';
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 // Helper function to handle API errors consistently

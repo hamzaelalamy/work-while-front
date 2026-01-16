@@ -21,6 +21,13 @@ import CompanyReviewPage from '../pages/CompanyReviewPage';
 import ProfilePage from '../pages/ProfileSetupPage.jsx';
 import DashboardPage from '../pages/DashboardPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import ScrapingDashboardPage from '../pages/ScrapingDashboardPage';
+import AnalyticsDashboardPage from '../pages/AnalyticsDashboardPage';
+import ManageUsersPage from '../pages/ManageUsersPage';
+import ManageJobsPage from '../pages/ManageJobsPage';
+import ManageCompaniesPage from '../pages/ManageCompaniesPage';
+import CompanyDetailsPage from '../pages/CompanyDetailsPage';
+import ScrollToTop from '../components/common/ScrollToTop';
 
 // Optional pages (create these if needed)
 // import SalaryGuidePage from '../pages/SalaryGuidePage';
@@ -196,6 +203,15 @@ const AppContent = () => {
                     />
 
                     <Route
+                        path="/companies/:id"
+                        element={
+                            <PublicRoute>
+                                <CompanyDetailsPage />
+                            </PublicRoute>
+                        }
+                    />
+
+                    <Route
                         path="/salaries"
                         element={
                             <PublicRoute>
@@ -327,12 +343,28 @@ const AppContent = () => {
                     />
 
                     <Route
+                        path="/admin/scraping"
+                        element={
+                            <RoleBasedRoute allowedRoles={['admin']}>
+                                <ScrapingDashboardPage />
+                            </RoleBasedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/admin/analytics"
+                        element={
+                            <RoleBasedRoute allowedRoles={['admin']}>
+                                <AnalyticsDashboardPage />
+                            </RoleBasedRoute>
+                        }
+                    />
+
+                    <Route
                         path="/admin/users"
                         element={
                             <RoleBasedRoute allowedRoles={['admin']}>
-                                <div className="container mx-auto px-4 mt-24">
-                                    <h1 className="text-2xl font-bold">User Management - Coming Soon</h1>
-                                </div>
+                                <ManageUsersPage />
                             </RoleBasedRoute>
                         }
                     />
@@ -341,15 +373,22 @@ const AppContent = () => {
                         path="/admin/jobs"
                         element={
                             <RoleBasedRoute allowedRoles={['admin']}>
-                                <div className="container mx-auto px-4 mt-24">
-                                    <h1 className="text-2xl font-bold">Job Management - Coming Soon</h1>
-                                </div>
+                                <ManageJobsPage />
+                            </RoleBasedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/admin/companies"
+                        element={
+                            <RoleBasedRoute allowedRoles={['admin']}>
+                                <ManageCompaniesPage />
                             </RoleBasedRoute>
                         }
                     />
 
                     {/* Development/Test Routes - Remove in production */}
-                    {import.meta.env.DEV &&  (
+                    {import.meta.env.DEV && (
                         <>
                             {/* Uncomment if you have TestUploadPage
               <Route
@@ -444,6 +483,7 @@ const AppRouter = () => {
         <ErrorBoundary>
             <Provider store={store}>
                 <Router>
+                    <ScrollToTop />
                     <AppContent />
                 </Router>
             </Provider>
