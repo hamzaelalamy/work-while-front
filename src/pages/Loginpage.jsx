@@ -13,12 +13,13 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
+  const [localLoading, setLocalLoading] = useState(false); // Use LOCAL loading state
 
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const { user, isAuthenticated, loading, error: reduxError } = useSelector(state => state.auth);
+  const { user, isAuthenticated, error: reduxError } = useSelector(state => state.auth);
 
   // Get redirect path from location state or default to jobs page
   const from = location.state?.from || '/jobs';
@@ -51,13 +52,15 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login form submission with data:', formData);
-    setLocalError('');
-    dispatch(setLoading(true));
+
+    // Don't clear local error yet, let it be replaced by new error if any
+    // Use LOCAL loading state to prevent component unmounting
+    setLocalLoading(true);
 
     try {
       // Use a direct axios instance to avoid global interceptors that cause reloads on 401
       // This is a specific fix for the login page to ensure errors are handled gracefully
-      const API_URL = import.meta.env.VITE_API_URL || 'https://1c1004c46f8f.ngrok-free.app/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
       const response = await axios.post(`${API_URL}/auth/login`, {
         email: formData.email,
@@ -71,6 +74,10 @@ const LoginPage = () => {
 
       const responseData = response.data;
       const { user, token } = responseData.data;
+
+      // Clear any errors on successful login
+      setLocalError('');
+      dispatch(clearError());
 
       // Manually update Redux state
       dispatch(loginSuccess({ user, token }));
@@ -90,20 +97,33 @@ const LoginPage = () => {
       // Redirect handled by useEffect
     } catch (err) {
       console.error('Login failed:', err);
-      dispatch(setLoading(false));
+
+      // IMPORTANT: Set LOCALLOADING to false (not Redux loading)
+      setLocalLoading(false);
 
       // Extract error message safely
-      let errorMessage = 'Login failed. Please check your credentials.';
+      let errorMessage = 'Invalid email or password. Please try again.';
 
       if (err.response) {
         // Server responded with an error (e.g., 401)
+        console.log('Error response:', err.response.data);
         errorMessage = err.response.data?.message || err.response.data?.error || errorMessage;
-      } else if (err.message) {
-        // Network error or other
-        errorMessage = err.message;
+      } else if (err.request) {
+        // Request was made but no response received
+        console.error('No response received:', err.request);
+        errorMessage = 'Unable to connect to server. Please check your connection.';
+      } else {
+        // Something else happened
+        console.error('Error setting up request:', err.message);
+        errorMessage = err.message || errorMessage;
       }
 
+      console.log('Setting error message:', errorMessage);
       setLocalError(errorMessage);
+
+      // DO NOT clear the form data - keep the email so user can try again
+      // Only clear password for security
+      setFormData(prev => ({ ...prev, password: '' }));
     }
   };
 
@@ -132,7 +152,7 @@ const LoginPage = () => {
             </div>
           )}
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -194,11 +214,11 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                disabled={localLoading}
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${localLoading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
               >
-                {loading ? (
+                {localLoading ? (
                   <>
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

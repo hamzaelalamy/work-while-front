@@ -29,24 +29,31 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    
+
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
-      // You could implement token refresh logic here
-      
-      // For now, just handle the unauthorized error
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      // You could dispatch a logout action here
-      // store.dispatch(logout());
-      
-      // Or redirect to login
-      window.location.href = '/login';
+
+      // Check if this is a login/register request or if we're on the login/register page
+      const isAuthRequest = originalRequest.url && (
+        originalRequest.url.includes('/auth/login') ||
+        originalRequest.url.includes('/auth/register')
+      );
+      const isAuthPage = window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/register');
+
+      // Only clear auth data and redirect if it's NOT an auth request and NOT on auth page
+      if (!isAuthRequest && !isAuthPage) {
+        // Clear auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+
+        // Redirect to login
+        window.location.href = '/login';
+      }
+      // If it IS an auth request or we're on an auth page, just pass the error through
     }
-    
+
     return Promise.reject(error);
   }
 );

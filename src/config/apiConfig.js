@@ -148,18 +148,25 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // Clear auth data
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Check if this is a login/register request or if we're on the login/register page
+      const isAuthRequest = originalRequest.url && (
+        originalRequest.url.includes('/auth/login') ||
+        originalRequest.url.includes('/auth/register')
+      );
+      const isAuthPage = window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/register');
 
-      // Redirect to login page
-      // Redirect to login page ONLY if not already on login page and not a login request failure
-      const isLoginRequest = originalRequest.url && (originalRequest.url.includes('login') || originalRequest.url.includes('auth'));
-      const isLoginPage = window.location.pathname.includes('login');
+      // Only clear auth data and redirect if it's NOT an auth request and NOT on auth page
+      if (!isAuthRequest && !isAuthPage) {
+        // Clear auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
 
-      if (!isLoginPage && !isLoginRequest) {
+        // Redirect to login page
         window.location.href = '/login';
       }
+      // If it IS an auth request or we're on an auth page, just pass the error through
+      // without redirecting - let the page handle it
     }
 
     return Promise.reject(error);
