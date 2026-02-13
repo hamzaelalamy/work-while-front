@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import jobService from '../services/jobService';
 
-export default function JobListingsPage({ showMyApplications = false }) {
+function formatPostedDate(createdAt) {
+  if (createdAt == null || createdAt === '') return '—';
+  const d = new Date(createdAt);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+export default function JobListingsPage({ showMyApplications = false, showSavedJobs = false }) {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,17 +46,16 @@ export default function JobListingsPage({ showMyApplications = false }) {
         setLoading(true);
         setError(null);
 
-        if (showMyApplications && isAuthenticated) {
-          // ... existing logic ...
-          // (This part is tricky to replace via regex if too complex, 
-          // but I'm targeting the block start. I'll rely on the user's existing logic structure)
-          // For simplicity in this `replace_file_content`, I'm just adding the state and 
-          // hoping the user logic is simple enough to adapt or I replace the effect.
-          // Actually, I should replace the WHOLE useEffect to be safe.
-        }
-
-        // Logic split:
-        if (showMyApplications && isAuthenticated) {
+        if (showSavedJobs && isAuthenticated) {
+          const saved = await jobService.getSavedJobs(1, 100);
+          const list = Array.isArray(saved) ? saved : [];
+          setJobs(list);
+          setFilteredJobs(list);
+          setSavedJobs(list.map(j => ({ jobId: j._id })));
+        } else if (showSavedJobs && !isAuthenticated) {
+          setJobs([]);
+          setFilteredJobs([]);
+        } else if (showMyApplications && isAuthenticated) {
           const applications = await jobService.getUserApplications();
           setUserApplications(applications);
           const appliedJobs = await Promise.all(
@@ -59,18 +64,13 @@ export default function JobListingsPage({ showMyApplications = false }) {
           setJobs(appliedJobs);
           setFilteredJobs(appliedJobs);
         } else if (smartSearch && searchTerm.trim()) {
-          // Semantic Search
           const aiJobs = await jobService.semanticSearch(searchTerm);
           setJobs(aiJobs);
           setFilteredJobs(aiJobs);
         } else {
-          // Normal Fetch
-          const allJobs = await jobService.getAllJobs(filters);
+          const allJobs = await jobService.getAllJobs({ ...filters, limit: 50 });
           const jobsArray = Array.isArray(allJobs) ? allJobs : [];
           setJobs(jobsArray);
-          // If NOT smart search, we apply client-side filters in the next useEffect
-          // But wait, the next useEffect triggers on `jobs` change.
-          // If we manually set `filteredJobs` here, the next useEffect might overwrite if it re-runs.
         }
       } catch (err) {
         setError(err.message || 'Failed to fetch jobs.');
@@ -86,7 +86,7 @@ export default function JobListingsPage({ showMyApplications = false }) {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [showMyApplications, isAuthenticated, filters, smartSearch, searchTerm]); // Added smartSearch, searchTerm dependencies
+  }, [showMyApplications, showSavedJobs, isAuthenticated, filters, smartSearch, searchTerm]);
 
   // Apply filters and search when filters, search term, or jobs change
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function JobListingsPage({ showMyApplications = false }) {
         const lowercasedSearch = searchTerm.toLowerCase();
         result = result.filter(job =>
           job.title?.toLowerCase().includes(lowercasedSearch) ||
-          (job.company?.name || '').toLowerCase().includes(lowercasedSearch) ||
+          (job.company?.name || job.companyName || '').toLowerCase().includes(lowercasedSearch) ||
           job.description?.toLowerCase().includes(lowercasedSearch) ||
           job.location?.toLowerCase().includes(lowercasedSearch)
         );
@@ -124,10 +124,10 @@ export default function JobListingsPage({ showMyApplications = false }) {
         );
       }
 
-      // Filter by company
+      // Filter by company (include companyName for scraped jobs)
       if (filters.company) {
         result = result.filter(job =>
-          (job.company?.name || '').toLowerCase().includes(filters.company.toLowerCase())
+          (job.company?.name || job.companyName || '').toLowerCase().includes(filters.company.toLowerCase())
         );
       }
 
@@ -164,6 +164,10 @@ export default function JobListingsPage({ showMyApplications = false }) {
       if (isSaved) {
         await jobService.removeSavedJob(jobId);
         setSavedJobs(prev => prev.filter(item => item.jobId !== jobId));
+        if (showSavedJobs) {
+          setJobs(prev => prev.filter(j => j._id !== jobId));
+          setFilteredJobs(prev => prev.filter(j => j._id !== jobId));
+        }
       } else {
         const savedJob = await jobService.saveJob(jobId);
         setSavedJobs(prev => [...prev, savedJob]);
@@ -213,7 +217,7 @@ export default function JobListingsPage({ showMyApplications = false }) {
 
     return [...new Set(jobs.map(job => {
       if (key === 'company') {
-        return job.company?.name;
+        return job.company?.name || job.companyName;
       }
       return job[key];
     }))].filter(Boolean);
@@ -498,7 +502,7 @@ export default function JobListingsPage({ showMyApplications = false }) {
                     }
                   </p>
                   <div className="mt-4 text-sm text-gray-500">
-                    <p>Posted: {new Date(job.createdAt).toLocaleDateString()}</p>
+                    <p>Posted: {formatPostedDate(job.createdAt)}</p>
 
                     {showMyApplications && (
                       <p className="mt-1 text-blue-600 font-medium">

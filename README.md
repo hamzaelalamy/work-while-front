@@ -31,7 +31,7 @@ WorkWhile is an innovative job seeking platform designed to connect talented pro
 
 ### Contributing
 
-We welcome contributions to FindYourJob! Please see our contributing guidelines for more information.
+We welcome contributions to WorkWhile! Please see our contributing guidelines for more information.
 
 
 ### License

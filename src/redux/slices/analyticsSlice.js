@@ -11,16 +11,19 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
+const authConfig = (getState) => {
+    const { auth } = getState();
+    return { headers: { Authorization: `Bearer ${auth.token}` } };
+};
+
 export const fetchMarketOverview = createAsyncThunk(
     "analytics/fetchOverview",
     async (_, { rejectWithValue, getState }) => {
         try {
-            const { auth } = getState();
-            const config = { headers: { Authorization: `Bearer ${auth.token}` } };
-            const response = await axios.get(`${API_URL}/analytics/overview`, config);
+            const response = await axios.get(`${API_URL}/analytics/overview`, authConfig(getState));
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -29,12 +32,10 @@ export const fetchTopSectors = createAsyncThunk(
     "analytics/fetchSectors",
     async (_, { rejectWithValue, getState }) => {
         try {
-            const { auth } = getState();
-            const config = { headers: { Authorization: `Bearer ${auth.token}` } };
-            const response = await axios.get(`${API_URL}/analytics/sectors`, config);
+            const response = await axios.get(`${API_URL}/analytics/sectors`, authConfig(getState));
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -43,12 +44,10 @@ export const fetchTopSkills = createAsyncThunk(
     "analytics/fetchSkills",
     async (_, { rejectWithValue, getState }) => {
         try {
-            const { auth } = getState();
-            const config = { headers: { Authorization: `Bearer ${auth.token}` } };
-            const response = await axios.get(`${API_URL}/analytics/skills`, config);
+            const response = await axios.get(`${API_URL}/analytics/skills`, authConfig(getState));
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -57,12 +56,34 @@ export const fetchJobTrends = createAsyncThunk(
     "analytics/fetchTrends",
     async (_, { rejectWithValue, getState }) => {
         try {
-            const { auth } = getState();
-            const config = { headers: { Authorization: `Bearer ${auth.token}` } };
-            const response = await axios.get(`${API_URL}/analytics/trends`, config);
+            const response = await axios.get(`${API_URL}/analytics/trends`, authConfig(getState));
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);
+
+export const fetchLocationTrends = createAsyncThunk(
+    "analytics/fetchLocations",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const response = await axios.get(`${API_URL}/analytics/locations`, authConfig(getState));
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);
+
+export const fetchApplicationStatusDistribution = createAsyncThunk(
+    "analytics/fetchApplicationStatus",
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const response = await axios.get(`${API_URL}/analytics/application-status`, authConfig(getState));
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -74,14 +95,30 @@ const analyticsSlice = createSlice({
         sectors: [],
         skills: [],
         trends: [],
+        locations: [],
+        applicationStatus: [],
         loading: false,
         error: null,
     },
-    reducers: {},
+    reducers: {
+        clearError: (state) => {
+            state.error = null;
+        },
+    },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchMarketOverview.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchMarketOverview.fulfilled, (state, action) => {
+                state.loading = false;
                 state.overview = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchMarketOverview.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'Failed to load overview';
             })
             .addCase(fetchTopSectors.fulfilled, (state, action) => {
                 state.sectors = action.payload;
@@ -91,8 +128,15 @@ const analyticsSlice = createSlice({
             })
             .addCase(fetchJobTrends.fulfilled, (state, action) => {
                 state.trends = action.payload;
+            })
+            .addCase(fetchLocationTrends.fulfilled, (state, action) => {
+                state.locations = action.payload;
+            })
+            .addCase(fetchApplicationStatusDistribution.fulfilled, (state, action) => {
+                state.applicationStatus = action.payload;
             });
     },
 });
 
+export const { clearError } = analyticsSlice.actions;
 export default analyticsSlice.reducer;

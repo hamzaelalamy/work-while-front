@@ -44,7 +44,8 @@ export const API_ENDPOINTS = {
     CREATE_JOB: '/jobs',
     GET_MY_JOBS: '/jobs/my/jobs',
     UPDATE_JOB: (id) => `/jobs/${id}`,
-    DELETE_JOB: (id) => `/jobs/${id}`
+    DELETE_JOB: (id) => `/jobs/${id}`,
+    SEMANTIC_SEARCH: '/jobs/search/semantic'
   },
   APPLICATIONS: {
     CREATE: '/applications',

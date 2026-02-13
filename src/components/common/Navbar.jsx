@@ -232,13 +232,15 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Create Job Posting button */}
-              <button
-                onClick={handleCreateJobClick}
-                className="hidden sm:block text-sm text-blue-600 font-medium hover:text-blue-800"
-              >
-                Create Job Posting
-              </button>
+              {/* Create Job Posting button - only for employers, admins, or guests */}
+              {(!isAuthenticated || user?.role === 'employer' || user?.role === 'admin') && (
+                <button
+                  onClick={handleCreateJobClick}
+                  className="hidden sm:block text-sm text-blue-600 font-medium hover:text-blue-800"
+                >
+                  Create Job Posting
+                </button>
+              )}
 
               {/* Mobile menu button */}
               <button
@@ -356,16 +358,18 @@ export default function Navbar() {
                 </>
               )}
 
-              {/* Create Job Posting button for mobile */}
-              <button
-                onClick={() => {
-                  handleCreateJobClick();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="block w-full text-left px-3 py-2 rounded-md text-blue-600 font-medium hover:bg-blue-50"
-              >
-                Create Job Posting
-              </button>
+              {/* Create Job Posting button for mobile - only for employers, admins, or guests */}
+              {(!isAuthenticated || user?.role === 'employer' || user?.role === 'admin') && (
+                <button
+                  onClick={() => {
+                    handleCreateJobClick();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md text-blue-600 font-medium hover:bg-blue-50"
+                >
+                  Create Job Posting
+                </button>
+              )}
             </div>
           </div>
         )}

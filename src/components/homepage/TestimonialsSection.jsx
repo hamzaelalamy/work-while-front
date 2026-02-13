@@ -5,7 +5,7 @@ const testimonials = [
     name: "Alex Johnson",
     role: "Software Engineer",
     company: "TechCorp",
-    text: "FindYourJob's mentorship program connected me with a senior engineer who helped me land my dream job right out of college.",
+    text: "WorkWhile's mentorship program connected me with a senior engineer who helped me land my dream job right out of college.",
     image: "https://randomuser.me/api/portraits/men/32.jpg",
     background: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
   },
@@ -21,7 +21,7 @@ const testimonials = [
     name: "Marcus Taylor",
     role: "Financial Analyst",
     company: "Investment Partners",
-    text: "From internship to full-time offer, FindYourJob guided me through every step with resources and support I couldn't find anywhere else.",
+    text: "From internship to full-time offer, WorkWhile guided me through every step with resources and support I couldn't find anywhere else.",
     image: "https://randomuser.me/api/portraits/men/57.jpg",
     background: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
   }
@@ -37,7 +37,7 @@ const TestimonialsSection = forwardRef(({ isVisible }, ref) => {
           <div className={`text-center mb-16 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <span className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#EDC418' }}>Success Stories</span>
             <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ color: '#3c78e6' }}>Young Professionals Share Their Journey</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto mt-4">Hear from those who launched successful careers with FindYourJob's guidance.</p>
+            <p className="text-gray-600 max-w-2xl mx-auto mt-4">Hear from those who launched successful careers with WorkWhile's guidance.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
