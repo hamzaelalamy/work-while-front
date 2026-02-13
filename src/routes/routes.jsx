@@ -23,6 +23,7 @@ import DashboardPage from '../pages/DashboardPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ScrapingDashboardPage from '../pages/ScrapingDashboardPage';
 import AnalyticsDashboardPage from '../pages/AnalyticsDashboardPage';
+import CVMatchPage from '../pages/CVMatchPage';
 import ManageUsersPage from '../pages/ManageUsersPage';
 import ManageJobsPage from '../pages/ManageJobsPage';
 import ManageCompaniesPage from '../pages/ManageCompaniesPage';
@@ -291,6 +292,15 @@ const AppContent = () => {
                         element={
                             <RoleBasedRoute allowedRoles={['candidate']}>
                                 <JobListingsPage showSavedJobs={true} />
+                            </RoleBasedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/cv-match"
+                        element={
+                            <RoleBasedRoute allowedRoles={['candidate', 'admin']}>
+                                <CVMatchPage />
                             </RoleBasedRoute>
                         }
                     />

@@ -61,6 +61,11 @@ export const API_ENDPOINTS = {
     GET_COMPANIES: '/companies',
     GET_COMPANY: (id) => `/companies/${id}`
   },
+  // CV-based job matching (candidate)
+  CV: {
+    UPLOAD: '/cv/upload',
+    MATCHES: '/cv/matches'
+  },
   // Test endpoints
   HEALTH: '/health',
   CORS_TEST: '/cors-test',
@@ -73,6 +78,11 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Let the browser set Content-Type with boundary for FormData (e.g. CV upload)
+    if (config.data && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
     }
 
     // Always add ngrok header

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef } from 'react';
-import { User, Bell, Heart, Menu, X } from 'lucide-react';
+import { User, Bell, Heart, Menu, X, FileText } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../../redux/slices/authActions';
@@ -90,6 +90,15 @@ export default function Navbar() {
             {/* Right-side links and icons */}
             <div className="flex items-center space-x-5">
               {/* Saved jobs - only for authenticated candidates */}
+              {isAuthenticated && (user?.role === 'candidate' || user?.role === 'admin') && (
+                <Link
+                  to="/cv-match"
+                  className="hidden sm:flex items-center text-gray-700 hover:text-blue-600"
+                >
+                  <FileText size={18} className="mr-1" />
+                  <span className="hidden sm:inline">Match my CV</span>
+                </Link>
+              )}
               {isAuthenticated && user?.role === 'candidate' && (
                 <Link
                   to="/saved-jobs"
@@ -161,6 +170,13 @@ export default function Navbar() {
                         {user?.role === 'admin' && (
                           <>
                             <Link
+                              to="/cv-match"
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileOpen(false)}
+                            >
+                              Match my CV
+                            </Link>
+                            <Link
                               to="/admin/scraping"
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                               onClick={() => setIsProfileOpen(false)}
@@ -179,6 +195,13 @@ export default function Navbar() {
 
                         {user?.role === 'candidate' && (
                           <>
+                            <Link
+                              to="/cv-match"
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileOpen(false)}
+                            >
+                              Match my CV
+                            </Link>
                             <Link
                               to="/my-applications"
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
